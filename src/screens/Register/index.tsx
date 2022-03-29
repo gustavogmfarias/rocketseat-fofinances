@@ -57,7 +57,7 @@ export function Register() {
     amount: string;
   }
 
-  function handleRegister(form: FormData) {
+  function handleRegister(form: Partial<FormData>) {
     if (!transactionType) {
       Alert.alert("Selecione o tipo da transação");
     }
