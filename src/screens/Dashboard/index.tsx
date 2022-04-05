@@ -61,6 +61,10 @@ export function Dashboard() {
 
     setData(transactionsFormatted);
   }
+  // useEffect(() => {
+  //   AsyncStorage.removeItem("@gofinances:transactions");
+  // }, []);
+
   useEffect(() => {
     loadTransactions();
   }, []);
