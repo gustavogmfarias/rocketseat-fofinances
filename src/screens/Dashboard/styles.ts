@@ -7,10 +7,6 @@ import {
   getStatusBarHeight,
 } from "react-native-iphone-x-helper";
 import { DataListProps } from ".";
-import {
-  GestureHandlerRootView,
-  BorderlessButton,
-} from "react-native-gesture-handler";
 
 export const Container = styled.View`
   flex: 1;
@@ -99,4 +95,4 @@ export const TransanctionList = styled(
 ).attrs({
   showsVerticalScrollIndicator: false,
   contentContainerStyle: { paddingBottom: getBottomSpace() },
-})``;
+})`` as React.ComponentType as new <DataListProps>() => FlatList<DataListProps>;
