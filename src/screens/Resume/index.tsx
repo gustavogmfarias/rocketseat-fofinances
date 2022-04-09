@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Container, Header, Title, Content } from "./styles";
 import { HistoryCard } from "../../components/HistoryCard";
+import { VictoryPie } from "victory-pie";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { categories } from "../../utils/categories";
 
@@ -15,7 +16,8 @@ export interface TransactionData {
 interface CategoryData {
   key: string;
   name: string;
-  total: string;
+  total: number;
+  totalFormatted: string;
   color: string;
 }
 
@@ -43,7 +45,7 @@ export function Resume() {
       });
 
       if (categorySum > 0) {
-        const total = categorySum.toLocaleString("pt-BR", {
+        const totalFormatted = categorySum.toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
         });
@@ -52,7 +54,8 @@ export function Resume() {
           key: category.key,
           name: category.name,
           color: category.color,
-          total,
+          total: categorySum,
+          totalFormatted,
         });
       }
     });
@@ -71,11 +74,13 @@ export function Resume() {
       </Header>
 
       <Content>
+        <VictoryPie data={totalByCategories} x="name" y="total" />
+
         {totalByCategories.map((item) => (
           <HistoryCard
             key={item.key}
             title={item.name}
-            amount={item.total}
+            amount={item.totalFormatted}
             color={item.color}
           />
         ))}
