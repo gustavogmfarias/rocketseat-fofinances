@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Container, Header, Title } from "./styles";
+import React, { useEffect, useState } from "react";
+import { Container, Header, Title, Content } from "./styles";
 import { HistoryCard } from "../../components/HistoryCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { categories } from "../../utils/categories";
@@ -12,7 +12,17 @@ export interface TransactionData {
   date: string;
 }
 
+interface CategoryData {
+  key: string;
+  name: string;
+  total: string;
+  color: string;
+}
+
 export function Resume() {
+  const [totalByCategories, setTotalByCategories] = useState<CategoryData[]>(
+    []
+  );
   async function loadData() {
     const dataKey = "@gofinances:transactions";
     const response = await AsyncStorage.getItem(dataKey);
@@ -22,7 +32,7 @@ export function Resume() {
       (expense: TransactionData) => expense.type === "negative"
     );
 
-    const totalByCategory = [];
+    const totalByCategory: CategoryData[] = [];
 
     categories.forEach((category) => {
       let categorySum = 0;
@@ -33,14 +43,21 @@ export function Resume() {
       });
 
       if (categorySum > 0) {
+        const total = categorySum.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        });
+
         totalByCategory.push({
+          key: category.key,
           name: category.name,
-          total: categorySum,
+          color: category.color,
+          total,
         });
       }
     });
 
-    console.log(totalByCategory);
+    setTotalByCategories(totalByCategory);
   }
 
   useEffect(() => {
@@ -52,7 +69,17 @@ export function Resume() {
       <Header>
         <Title>Resumo</Title>
       </Header>
-      <HistoryCard title="Compras" amount="R$150.00" color="red" />
+
+      <Content>
+        {totalByCategories.map((item) => (
+          <HistoryCard
+            key={item.key}
+            title={item.name}
+            amount={item.total}
+            color={item.color}
+          />
+        ))}
+      </Content>
     </Container>
   );
 }
