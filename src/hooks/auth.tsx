@@ -1,6 +1,10 @@
-import React, { createContext, ReactNode, useContext } from "react";
+import React, { createContext, ReactNode, useContext, useState } from "react";
+
+const { CLIENT_ID } = process.env;
+const { REDIRECT_URI } = process.env;
 
 import * as AuthSession from "expo-auth-session";
+import * as AppleAuthentication from "expo-apple-authentication";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -16,6 +20,7 @@ interface User {
 interface IAuthContextData {
   user: User;
   signInWithGoogle(): Promise<void>;
+  signInWithApple(): Promise<void>;
 }
 
 interface AuthorizationResponse {
@@ -28,17 +33,10 @@ interface AuthorizationResponse {
 const AuthContext = createContext({} as IAuthContextData);
 
 function AuthProvider({ children }: AuthProviderProps) {
-  const user = {
-    id: "1",
-    name: "Gustavo",
-    email: "gustavo@gmail.com",
-  };
+  const [user, setUser] = useState<User>({} as User);
 
   async function signInWithGoogle() {
     try {
-      const CLIENT_ID =
-        "815213171517-9v1r9onauiahau9o2du0rj0970rp6bvo.apps.googleusercontent.com";
-      const REDIRECT_URI = "https://auth.expo.io/@gustavogmfarias/gofinances";
       const RESPONSE_TYPE = "token";
       const SCOPE = encodeURI("profile email");
 
@@ -52,17 +50,45 @@ function AuthProvider({ children }: AuthProviderProps) {
         const response = await fetch(
           `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${params.access_token}`
         );
-        console.log(response);
-        const userInfo = response.json();
-        console.log(userInfo);
+        const userInfo = await response.json();
+
+        setUser({
+          id: userInfo.id,
+          email: userInfo.email,
+          name: userInfo.given_name,
+          photo: userInfo.picture,
+        });
       }
     } catch (error) {
-      throw new Error(error);
+      throw new Error(error as string);
+    }
+  }
+
+  async function signInWithApple() {
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      if (credential) {
+        const userLogged = {
+          id: String(credential.user),
+          email: credential.email!,
+          name: credential.fullName!.givenName!,
+        };
+
+        setUser(userLogged);
+      }
+    } catch (error) {
+      throw new Error(error as string);
     }
   }
 
   return (
-    <AuthContext.Provider value={{ user, signInWithGoogle }}>
+    <AuthContext.Provider value={{ user, signInWithGoogle, signInWithApple }}>
       {children}
     </AuthContext.Provider>
   );
