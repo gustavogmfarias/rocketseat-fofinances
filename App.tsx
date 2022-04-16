@@ -14,8 +14,7 @@ import {
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
 import theme from "./src/global/styles/theme";
-import { NavigationContainer } from "@react-navigation/native";
-import { SignIn } from "./src/screens/SignIn";
+import { Routes } from "./src/routes/";
 import { AuthProvider } from "./src/hooks/auth";
 
 export default function App() {
@@ -37,11 +36,9 @@ export default function App() {
           backgroundColor="transparent"
           translucent
         />
-        <NavigationContainer>
-          <AuthProvider>
-            <SignIn />
-          </AuthProvider>
-        </NavigationContainer>
+        <AuthProvider>
+          <Routes />
+        </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );
