@@ -27,6 +27,7 @@ import {
   LogoutButton,
   LoadContainer,
 } from "./styles";
+import { useAuth } from "../../hooks/auth";
 
 export interface DataListProps extends TransactionCardProps {
   id: string;
@@ -50,6 +51,7 @@ export function Dashboard() {
   const [highlightData, setHighLightData] = useState<HighlightData>(
     {} as HighlightData
   );
+  const { signOut, user } = useAuth();
 
   function getLastTransactionDate(
     collection: DataListProps[],
@@ -71,7 +73,7 @@ export function Dashboard() {
   }
 
   async function loadTransactions() {
-    const dataKey = "@gofinances:transactions";
+    const dataKey = `@gofinances:transactions_user:${user.id}`;
     const response = await AsyncStorage.getItem(dataKey);
     const transactions = response ? JSON.parse(response) : [];
 
@@ -153,10 +155,6 @@ export function Dashboard() {
   //   AsyncStorage.removeItem("@gofinances:transactions");
   // }, []);
 
-  useEffect(() => {
-    loadTransactions();
-  }, []);
-
   useFocusEffect(
     useCallback(() => {
       loadTransactions();
@@ -176,15 +174,15 @@ export function Dashboard() {
               <UserInfo>
                 <Photo
                   source={{
-                    uri: "https://avatars.githubusercontent.com/u/53410368?v=4",
+                    uri: user.avatar,
                   }}
                 />
                 <User>
                   <UserGreeting>Olá,</UserGreeting>
-                  <UserName>Gustavo</UserName>
+                  <UserName>{user.name}</UserName>
                 </User>
               </UserInfo>
-              <LogoutButton onPress={() => {}}>
+              <LogoutButton onPress={signOut}>
                 <Icon name="power" />
               </LogoutButton>
             </UserWrapper>

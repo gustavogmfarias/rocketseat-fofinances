@@ -9,6 +9,7 @@ import React, {
 import * as WebBrowser from "expo-web-browser";
 import * as AuthSession from "expo-auth-session";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import env from "react-native-dotenv";
 
 type User = {
   id: string;
@@ -39,7 +40,7 @@ export const AuthProvider: React.FC = ({ children }) => {
   const [user, setUser] = useState<User>({} as User);
   const [userStorageLoading, setUserStorageLoading] = useState(true);
 
-  const userStorageKey = "@GoFinances:user";
+  const userStorageKey = "@gofinances:user";
 
   useEffect(() => {
     async function loadUser() {
@@ -51,14 +52,15 @@ export const AuthProvider: React.FC = ({ children }) => {
     }
 
     loadUser();
+    signOut();
   }, []);
 
   const signInWithGoogle = async () => {
     try {
       const authParams = new URLSearchParams({
         client_id:
-          "806197974212-lam21oh4uiaibl3mcr97oq8qsb19d03o.apps.googleusercontent.com",
-        redirect_uri: "https://auth.expo.io/@lienscarlet/gofinances",
+          "815213171517-9v1r9onauiahau9o2du0rj0970rp6bvo.apps.googleusercontent.com",
+        redirect_uri: "https://auth.expo.io/@gustavogmfarias/gofinances",
         response_type: "token",
         scope: encodeURI("profile email"),
       });
@@ -82,7 +84,6 @@ export const AuthProvider: React.FC = ({ children }) => {
         };
 
         setUser(loadedUser);
-
         await AsyncStorage.setItem(userStorageKey, JSON.stringify(loadedUser));
       }
     } catch (err) {
